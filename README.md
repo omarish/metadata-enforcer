@@ -175,6 +175,15 @@ $ metadata-enforcer --schema ./schemas/essays.yaml --recursive ~/vault/essays
 
 Python 3.10+ and [uv](https://docs.astral.sh/uv/). For local development from this repo, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
+Install the CLI from a checkout and add uv's tool directory to your shell PATH:
+
+```text
+make install
+metadata-enforcer --help
+```
+
+Or run it without installing:
+
 ```text
 uv sync --extra dev
 uv run metadata-enforcer .
