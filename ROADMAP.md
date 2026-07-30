@@ -4,14 +4,9 @@ Intentional non-goals for v1, in rough priority order.
 
 ## High priority
 
-### `metadata-enforcer init` / wizard
+### Interactive init wizard
 
-Generate a starting `columns.yaml` from an existing vault:
-
-* Scan frontmatter keys (and frequencies)
-* Infer coarse types; suggest `format: date` / low-cardinality `enum`s
-* Emit an all-optional field map (`required` omitted / false)
-* Non-interactive first; interactive prompts later
+Non-interactive `metadata-enforcer init` exists. Next: prompts to include/exclude keys, confirm enums, etc.
 
 ### Health score
 

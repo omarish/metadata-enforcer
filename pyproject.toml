@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metadata-enforcer"
+version = "0.1.0"
+description = "Enforce Obsidian frontmatter metadata with a human schema that compiles to JSON Schema"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "jsonschema>=4.22",
+  "python-frontmatter>=1.1",
+  "PyYAML>=6.0",
+  "watchdog>=4.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+metadata-enforcer = "metadata_enforcer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

@@ -60,8 +60,22 @@ schema:
 | --- | --- |
 | `required` | `false` |
 | `type` | `string` |
+| `nullable` | `false` |
 
 Empty / `{}` field specs are fine. Everything else on a field should be normal JSON Schema for that property (`enum`, `pattern`, `format`, `minLength`, `default`, …). No parallel synonyms like `choices`.
+
+`required: false` permits a field to be missing. A present but empty YAML
+value (`where-am-i:`) is `null`, so `init` emits `nullable: true` when it
+observes one:
+
+```yaml
+schema:
+  where-am-i:
+    nullable: true
+```
+
+The compiler turns that into “string or null.” Other constraints still apply
+to non-null values.
 
 The tool always compiles with:
 
@@ -73,9 +87,30 @@ Unknown top-level keys in `columns.yaml` (besides `schema:`) are an error in v1 
 
 v1 is **read-only**: a field may declare JSON Schema `default`, but the tool never writes into your notes.
 
+### Obsidian wiki-links
+
+Frontmatter values like `[[Note Title]]`, `[[folder/Note Title]]`, or `[[Note Title|alias]]` are treated as the **note title** (last path segment of the link target; aliases are ignored) during both `init` and validation. So `place: '[[Home]]'` and `place: Home` are the same value — put bare titles in your schema/`enum`s.
+
 ## How to run it
 
 This is a separate CLI, not an Obsidian plugin.
+
+### Cold start: infer a schema
+
+If you don't have a `columns.yaml` yet, scan existing notes and write a starting
+field map. The generated schema is a baseline: all fields are optional, nulls
+and mixed types are represented, and enums/dates are inferred only when the
+observed values support them.
+
+```text
+metadata-enforcer init ROOT
+metadata-enforcer init --recursive ROOT
+metadata-enforcer init --force --out ./columns.yaml ROOT
+```
+
+Review the file, tighten with `required: true` / narrower enums, then check.
+
+### Check
 
 ```text
 metadata-enforcer [OPTIONS] ROOT
@@ -138,11 +173,11 @@ $ metadata-enforcer --schema ./schemas/essays.yaml --recursive ~/vault/essays
 
 ## Install / develop
 
-Python 3.10+:
+Python 3.10+ and [uv](https://docs.astral.sh/uv/). For local development from this repo, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ```text
-pip install -e .
-metadata-enforcer .
+uv sync --extra dev
+uv run metadata-enforcer .
 ```
 
 ## v1 non-goals
@@ -152,7 +187,7 @@ Deliberately not in v1 (see [ROADMAP.md](ROADMAP.md)):
 * Nested multi-schema discovery
 * Uniqueness / referential integrity
 * Writing defaults into notes
-* Init / wizard from an existing vault
+* Interactive init wizard (non-interactive `init` exists)
 * Health score
 * TUI
 * Obsidian plugin
