@@ -125,7 +125,9 @@ class Note(models.Model):
 
 ### Built-in fields
 
-`TextField` · `BooleanField` · `DateField` · `TagsField` · `UUIDField` · `URLField` · `URLPathField`
+`TextField` · `BooleanField` · `DateField` · `TagsField` · `UUIDField` · `URLField` · `URLPathField` · `LiteralField`
+
+`LiteralField(value)` requires the metadata to equal exactly one fixed value (like TypeScript `as const` / `typing.Literal`). It accepts any supported scalar — e.g. `LiteralField("published")` or `LiteralField(True)` — coerces with the matching field type, and defaults to that value when `default=` is omitted. Equivalent to `SomeField(choices=(value,), default=value)`.
 
 ### Extra fields policy (`Meta.extra`)
 

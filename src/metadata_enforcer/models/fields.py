@@ -188,3 +188,69 @@ class URLPathField(AbstractBaseField):
         if "\\" in value:
             raise ValueError("must use forward slashes")
         return value
+
+
+class LiteralField(AbstractBaseField):
+    """A field that must equal exactly one fixed value (like typing.Literal)."""
+
+    def __init__(
+        self,
+        value: Any,
+        *,
+        default: Any = MISSING,
+        optional: bool = False,
+        unique: bool = False,
+        description: str | None = None,
+    ) -> None:
+        if value is None:
+            raise TypeError("LiteralField value may not be None")
+        if default is MISSING:
+            default = value
+        super().__init__(
+            default=default,
+            optional=optional,
+            choices=(value,),
+            unique=unique,
+            description=description,
+        )
+        self.value = value
+        self._coercer = self._coercer_for(value)
+
+    @staticmethod
+    def _coercer_for(value: Any) -> AbstractBaseField | None:
+        if isinstance(value, bool):
+            return BooleanField()
+        if isinstance(value, str):
+            return TextField()
+        if isinstance(value, datetime):
+            return None
+        if isinstance(value, date):
+            return DateField()
+        if isinstance(value, UUID):
+            return UUIDField()
+        return None
+
+    def clean(self, value: Any) -> Any:
+        if value is None or value == "":
+            if self.optional:
+                return None
+            if value == "":
+                raise ValueError("may not be blank")
+            raise ValueError("may not be null")
+
+        value = self.to_python(value)
+        if value != self.value:
+            raise ValueError(f"must be {self.value!r}")
+        return value
+
+    def to_python(self, value: Any) -> Any:
+        if self._coercer is not None:
+            return self._coercer.to_python(value)
+        if type(value) is not type(self.value):
+            raise ValueError(f"must be {type(self.value).__name__}")
+        return value
+
+    def serialize(self, value: Any) -> Any:
+        if self._coercer is not None:
+            return self._coercer.serialize(value)
+        return value
