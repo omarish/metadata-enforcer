@@ -6,6 +6,7 @@ import pytest
 from metadata_enforcer.models import (
     BooleanField,
     DateField,
+    LiteralField,
     TagsField,
     TextField,
     URLField,
@@ -98,3 +99,42 @@ def test_url_path_field():
         field.clean("essays/hello")
     with pytest.raises(ValueError, match="only a URL path"):
         field.clean("https://example.com/x")
+
+
+def test_literal_field_string():
+    field = LiteralField("published")
+    assert field.clean("published") == "published"
+    assert field.default == "published"
+    with pytest.raises(ValueError, match="must be 'published'"):
+        field.clean("draft")
+    with pytest.raises(ValueError, match="must be text"):
+        field.clean(1)
+
+
+def test_literal_field_bool():
+    field = LiteralField(True)
+    assert field.clean(True) is True
+    with pytest.raises(ValueError, match="must be True"):
+        field.clean(False)
+    with pytest.raises(ValueError, match="must be a boolean"):
+        field.clean("true")
+
+
+def test_literal_field_date():
+    expected = date(2026, 1, 1)
+    field = LiteralField(expected)
+    assert field.clean("2026-01-01") == expected
+    assert field.clean(expected) == expected
+    assert field.serialize(expected) == "2026-01-01"
+    with pytest.raises(ValueError, match="must be datetime.date\\(2026, 1, 1\\)"):
+        field.clean("2026-01-02")
+
+
+def test_literal_field_explicit_default():
+    field = LiteralField("published", default="draft")
+    assert field.default == "draft"
+
+
+def test_literal_field_rejects_none_value():
+    with pytest.raises(TypeError, match="may not be None"):
+        LiteralField(None)
