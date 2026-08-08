@@ -1,3 +1,3 @@
-# TODO
+# metadata-enforcer
 
-- [ ] make it easy to install (brew, apt? or uvx) and add instructions to readme.
+Django-style frontmatter models for Obsidian vaults. CLI: `check` / `fix` / `watch`.

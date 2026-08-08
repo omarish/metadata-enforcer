@@ -15,64 +15,40 @@ That creates `.venv`, installs the package in editable mode (code under `src/`),
 ## Run the CLI
 
 ```bash
-uv run metadata-enforcer init PATH/TO/NOTES
-uv run metadata-enforcer init --recursive --force PATH/TO/NOTES
-uv run metadata-enforcer PATH/TO/NOTES
-uv run metadata-enforcer --recursive PATH/TO/NOTES
-uv run metadata-enforcer --watch PATH/TO/NOTES
-uv run metadata-enforcer --schema ./columns.yaml PATH/TO/NOTES
+uv run metadata-enforcer check examples/sample-vault
+uv run metadata-enforcer fix examples/sample-vault --verbose
+uv run metadata-enforcer check --schema examples/vault_schema.py /path/to/vault
+uv run metadata-enforcer watch examples/sample-vault
 ```
 
 Or activate the env and call the script directly:
 
 ```bash
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-metadata-enforcer PATH/TO/NOTES
-```
-
-`PATH/TO/NOTES` should contain a `columns.yaml` (unless you pass `--schema`).
-
-### Quick smoke check
-
-```bash
-mkdir -p /tmp/me-demo
-cat > /tmp/me-demo/columns.yaml <<'EOF'
-schema:
-  title: {}
-  visibility:
-    enum: [public, private]
-EOF
-cat > /tmp/me-demo/note.md <<'EOF'
----
-title: Hello
-visibility: public
----
-Body
-EOF
-
-uv run metadata-enforcer /tmp/me-demo
-# expect: All good. / exit 0
+source .venv/bin/activate
+metadata-enforcer check examples/sample-vault
 ```
 
 ## Tests
 
 ```bash
 uv run pytest
+# or
+make test
 ```
-
-Tests live in `tests/` and use the `src/` layout via `pythonpath` in `pyproject.toml`.
 
 ## Layout
 
 ```text
 src/metadata_enforcer/
-  cli.py         # argparse entrypoint (check + init)
-  init.py        # infer columns.yaml from vault
-  schema.py      # columns.yaml → JSON Schema compile
-  discover.py    # find .md files
-  validate.py    # frontmatter + jsonschema
-  report.py      # stdout formatting
-  watch.py       # --watch
+  models/          # Django-style Model + fields
+  frontmatter.py   # YAML frontmatter read/write
+  enforcer.py      # path routing + scan/check/fix
+  schema_loader.py # load user schema.py + ROUTES
+  watcher.py       # debounced markdown watch
+  cli.py           # click: check | fix | watch
+examples/
+  sample-vault/    # tiny vault + schema.py
+  vault_schema.py  # richer inheritance example
 tests/
 pyproject.toml
 ```

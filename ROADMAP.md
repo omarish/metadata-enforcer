@@ -1,40 +1,35 @@
 # Roadmap
 
-Intentional non-goals for v1, in rough priority order.
-
-## High priority
-
-### Interactive init wizard
-
-Non-interactive `metadata-enforcer init` exists. Next: prompts to include/exclude keys, confirm enums, etc.
-
-### Health score
-
-A single vault/folder “make the number go up” metric (e.g. % notes passing, weighted by required fields / enum compliance / unknown-key rate). Complements binary exit codes: CI stays strict; daily use can chase gradual improvement. Exact formula TBD; surface in stdout, watch, and later TUI.
+Post-2.0 ideas, in rough priority order. 2.0 ships Django-style models, path routing, and `check` / `fix` / `watch`.
 
 ## Collection-level constraints
 
-Envelope siblings next to `schema:` (not JSON Schema keywords):
+Field option `unique=True` and `Meta.constraints` are declared but not enforced yet.
 
-* `unique` — uniqueness across notes under the scan scope
-* `references` — referential integrity (ids, paths, wiki-link targets, etc.)
+* Uniqueness across notes under a route (e.g. unique `sync_id`)
+* Cross-field constraints on a single note
+* Referential integrity (ids, paths, wiki-link targets)
 
-Exact DSL TBD. v1 rejects unknown top-level keys so these are not silently ignored before they exist.
+## More field types
 
-## Multi-schema discovery
+* `IntegerField` / `FloatField`
+* `DateTimeField`
+* `EnumField` convenience wrapper
+* Custom field subclassing docs + examples
 
-Nested `columns.yaml` files with nearest-ancestor (or similar) rules, once single-schema runs are solid.
+## Schema ergonomics
 
-## Apply defaults
-
-Opt-in command to write JSON Schema `default` values into frontmatter. Never implicit; notes stay sacred unless you ask.
+* Optional `schema.py` generation from observed frontmatter (starter only)
+* Multiple schema modules / package layouts
+* Typed route helpers
 
 ## Presentation
 
-* `--json` output of the result model
-* TUI over the same result model (stdout first)
+* `--json` output of `ScanResult`
+* Health score (% notes passing)
+* TUI over the same result model
 
 ## Later / low priority
 
 * Go port once behavior is stable
-* Obsidian plugin (explicitly low priority — CLI first)
+* Obsidian plugin (CLI first)
